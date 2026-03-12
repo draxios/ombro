@@ -34,22 +34,28 @@ ombro/
 
 ### Renderer (`renderer.h`, `renderer.cpp`)
 - Direct3D 11 with feature level 11.0 (fallback to 10.1)
-- **Ping-pong afterglow**: two offscreen render targets; each frame fades the previous frame and composites new wireframe on top, then copies to the swap chain back buffer
+- **Ping-pong afterglow**: two R16G16B16A16_FLOAT offscreen render targets for banding-free fade trails; each frame fades the previous frame and composites new wireframe, then copies to the swap chain back buffer
+- **Additive blending** for wireframe lines — creates phosphor-glow at line intersections (WhiteCap signature)
 - Shaders compiled at runtime from embedded HLSL strings via `D3DCompile`
 - Dynamic vertex/index buffers that auto-grow
 - Wireframe rasterizer state with antialiased lines
 
 ### Visualization (`visualization.h`, `visualization.cpp`)
 - 80×80 grid mesh (6,400 vertices, 25,280 line indices)
-- Surface `z` computed per-frame from layered math functions:
+- **Spectrum-mapped displacement** (WhiteCap signature): each grid row corresponds to a frequency bin, so spectrum energy directly drives Z height — you can *see* the music as terrain
+- **Waveform overlay**: raw audio waveform shape embedded into the surface along the X axis
+- **Grid XY warping**: sinusoidal distortion of grid positions creates organic, flowing motion instead of rigid lines
+- Surface `z` also computed from layered math functions:
   - **Crossing sine waves** — `sin(x·freq)·cos(y·freq+t)`
   - **Concentric ripples** — `sin(r·freq - t)`
   - **Spiral arms** — `sin(θ·arms + r·tightness - t)`
-- Audio modulation: bass scales amplitude, treble adds fine detail, beats pulse the surface
-- **8 presets** with smooth morphing transitions (~2.5s via smoothstep interpolation)
+- **Audio analysis**: per-bin fast-attack/slow-decay smoothing, bass/mid/treble band extraction, beat detection, spectral flux
+- **Edge falloff**: per-vertex alpha fades to transparent at grid boundaries (floating-in-space look)
+- **Two-tone color**: frequency-mapped hue gradient (bass=one color, treble=another) with per-vertex brightness from spectrum energy
+- **8 presets** with smooth morphing transitions (~2.5s, WhiteCap-style easing)
 - Auto-cycles presets every 15 seconds
-- HSV-based coloring: hue from surface height + time, brightness from audio energy
-- Camera orbits at preset-defined speed, height modulated by audio
+- Camera orbits with beat-reactive shake, FOV per preset, gentle roll, and look-at drift
+- `Wyvill(r)` smooth falloff function for organic shapes
 
 ### Shaders (`shaders.h`)
 - `g_wireframeVS` / `g_wireframePS` — transform vertices by view-proj matrix, pass-through per-vertex color

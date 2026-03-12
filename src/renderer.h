@@ -75,6 +75,7 @@ private:
     ID3D11RasterizerState*   wireRaster_  = nullptr;
     ID3D11RasterizerState*   solidRaster_ = nullptr;
     ID3D11BlendState*        blendState_  = nullptr;
+    ID3D11BlendState*        additiveBlendState_ = nullptr;
     ID3D11SamplerState*      sampler_     = nullptr;
     ID3D11DepthStencilState* noDepthState_ = nullptr;
 

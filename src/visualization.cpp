@@ -10,92 +10,147 @@ namespace ombro {
 
 static const float PI = 3.14159265358979323846f;
 
-// --- Preset library ---
-static const Preset g_presets[] = {
-    // Ocean Dream — gentle waves, blue-cyan, slow orbit
-    {"Ocean Dream",
-     2.0f, 1.5f,  0.4f, 0.3f,  0.3f,    // wave
-     3.0f, 1.2f,  0.25f,                  // ripple
-     0.0f, 0.0f,  0.0f,                   // spiral (off)
-     1.5f, 0.3f,  0.4f,                   // audio
-     0.55f, 0.15f, 0.02f, 0.8f, 0.9f,    // color (blue-cyan)
-     3.5f, 1.8f, 0.15f,                   // camera
-     0.06f},                               // fade
+// ============================================================
+// Preset library — 8 visually distinctive presets
+// ============================================================
 
-    // Neon Storm — aggressive, pink-purple, fast
-    {"Neon Storm",
-     4.0f, 3.5f,  1.2f, 0.9f,  0.2f,
-     6.0f, 2.5f,  0.35f,
-     2.0f, 3.0f,  0.15f,
-     2.5f, 0.6f,  0.5f,
-     0.85f, 0.2f, 0.05f, 0.9f, 1.0f,
-     3.0f, 2.0f, 0.35f,
+static const Preset g_presets[] = {
+
+    // 0: Spectrum Ridge — classic WhiteCap: spectrum IS the landscape
+    {"Spectrum Ridge",
+     1.5f, 1.0f,  0.3f, 0.2f,  0.15f,      // gentle wave underlayer
+     2.0f, 0.8f,  0.1f,                      // subtle ripple
+     0.0f, 0.0f,  0.0f, 0.0f,               // no spiral
+     1.2f, 1.8f,                              // spectrum: high scale, sharp peaks
+     0.15f,                                   // light waveform overlay
+     0.06f, 0.04f,  2.5f, 3.0f,  0.3f,      // gentle grid warp
+     1.0f, 0.15f, 0.35f,                     // audio reactivity
+     10.0f,                                   // edge falloff
+     0.55f, 0.48f, 0.02f,                    // color: blue → cyan
+     0.85f, 0.8f, 1.4f,                      // color: high sat, bright, glow
+     3.5f, 2.0f, 0.12f,                      // camera: orbit
+     0.85f, 0.08f, 0.15f,                    // cam: FOV, shake, tilt
+     0.05f},                                  // fade
+
+    // 1: Pulse Engine — heavy bass, aggressive, red-orange
+    {"Pulse Engine",
+     3.0f, 2.5f,  1.0f, 0.8f,  0.2f,
+     4.0f, 2.0f,  0.25f,
+     2.0f, 3.0f,  1.5f, 0.15f,
+     0.9f, 1.5f,
+     0.25f,
+     0.12f, 0.10f,  2.0f, 2.5f,  0.6f,      // heavy grid warp
+     2.5f, 0.4f, 0.5f,
+     8.0f,
+     0.02f, 0.12f, 0.04f,                    // red → orange
+     0.95f, 0.9f, 1.8f,
+     3.0f, 1.8f, 0.28f,
+     0.9f, 0.15f, 0.1f,
      0.04f},
 
-    // Crystal Cave — geometric, green-white
-    {"Crystal Cave",
-     3.0f, 3.0f,  0.5f, 0.5f,  0.35f,
-     4.5f, 0.8f,  0.2f,
-     3.0f, 2.0f,  0.2f,
-     1.8f, 0.5f,  0.45f,
-     0.35f, 0.25f, 0.01f, 0.6f, 0.95f,
-     3.2f, 1.5f, 0.2f,
+    // 2: Crystal Lattice — sharp peaks, green-white, minimal warp
+    {"Crystal Lattice",
+     3.5f, 3.5f,  0.4f, 0.4f,  0.3f,
+     5.0f, 1.0f,  0.2f,
+     3.0f, 2.0f,  0.8f, 0.2f,
+     1.0f, 2.2f,                              // sharp spectrum peaks
+     0.1f,
+     0.02f, 0.02f,  4.0f, 4.0f,  0.2f,      // very subtle warp
+     1.5f, 0.5f, 0.4f,
+     12.0f,
+     0.30f, 0.42f, 0.01f,                    // green → teal
+     0.6f, 0.95f, 1.2f,
+     3.2f, 2.5f, 0.18f,                      // higher camera
+     0.7f, 0.06f, 0.08f,
      0.05f},
 
-    // Solar Wind — flowing spirals, orange-yellow
-    {"Solar Wind",
-     1.5f, 2.0f,  0.6f, 0.4f,  0.25f,
-     2.0f, 1.0f,  0.15f,
-     4.0f, 5.0f,  0.35f,
-     2.0f, 0.3f,  0.4f,
-     0.1f, 0.12f, 0.03f, 0.9f, 1.0f,
-     3.8f, 1.6f, 0.25f,
-     0.07f},
-
-    // Deep Space — slow undulation, deep purple, long trails
-    {"Deep Space",
+    // 3: Nebula — smooth, flowing, purple-pink, long trails
+    {"Nebula",
      1.0f, 0.8f,  0.2f, 0.15f,  0.35f,
      1.5f, 0.5f,  0.3f,
-     1.0f, 1.0f,  0.1f,
-     2.0f, 0.2f,  0.35f,
-     0.75f, 0.1f, 0.01f, 0.7f, 0.85f,
-     4.0f, 2.2f, 0.1f,
-     0.03f},
+     1.0f, 1.5f,  0.4f, 0.15f,
+     0.8f, 1.0f,                              // softer spectrum (low exponent)
+     0.2f,
+     0.15f, 0.12f,  1.5f, 2.0f,  0.2f,      // flowing warp
+     1.5f, 0.2f, 0.35f,
+     6.0f,                                    // wide edge falloff
+     0.78f, 0.92f, 0.015f,                   // purple → pink
+     0.75f, 0.85f, 1.0f,
+     4.0f, 2.2f, 0.08f,                      // far, slow orbit
+     0.75f, 0.04f, 0.2f,                     // more tilt
+     0.025f},                                 // very slow fade = long trails
 
-    // Electric Rain — fine detail, cyan-white
-    {"Electric Rain",
-     5.0f, 4.5f,  0.8f, 1.0f,  0.15f,
-     8.0f, 3.0f,  0.2f,
-     0.0f, 0.0f,  0.0f,
-     1.2f, 0.8f,  0.35f,
-     0.5f, 0.1f, 0.04f, 0.5f, 1.0f,
-     3.0f, 1.4f, 0.3f,
-     0.05f},
-
-    // Magma Flow — low-frequency, red-orange
-    {"Magma Flow",
-     1.2f, 1.0f,  0.3f, 0.25f,  0.4f,
-     2.0f, 0.6f,  0.35f,
-     2.0f, 2.5f,  0.25f,
-     3.0f, 0.2f,  0.5f,
-     0.05f, 0.1f, 0.015f, 0.95f, 0.9f,
-     3.5f, 2.0f, 0.18f,
-     0.05f},
-
-    // Aurora — rainbow, smooth flowing
-    {"Aurora",
-     2.5f, 2.0f,  0.5f, 0.35f,  0.3f,
-     3.0f, 1.0f,  0.25f,
-     1.0f, 3.0f,  0.15f,
-     1.5f, 0.4f,  0.4f,
-     0.0f, 1.0f, 0.06f, 0.85f, 0.95f,
-     3.5f, 1.8f, 0.2f,
+    // 4: Waveform Canyon — strong waveform presence, teal-yellow
+    {"Waveform Canyon",
+     2.0f, 1.5f,  0.5f, 0.3f,  0.2f,
+     3.0f, 1.2f,  0.15f,
+     0.0f, 0.0f,  0.0f, 0.0f,
+     0.7f, 1.3f,
+     0.5f,                                    // STRONG waveform overlay
+     0.08f, 0.06f,  2.0f, 2.5f,  0.35f,
+     1.8f, 0.3f, 0.4f,
+     9.0f,
+     0.48f, 0.16f, 0.03f,                    // teal → yellow
+     0.8f, 0.9f, 1.3f,
+     3.0f, 1.5f, 0.2f,
+     0.85f, 0.1f, 0.12f,
      0.06f},
+
+    // 5: Storm Front — aggressive all-spectrum, electric blue-white
+    {"Storm Front",
+     4.5f, 4.0f,  1.2f, 1.0f,  0.15f,
+     7.0f, 3.0f,  0.2f,
+     2.0f, 4.0f,  2.0f, 0.1f,
+     1.5f, 2.0f,
+     0.2f,
+     0.10f, 0.08f,  3.0f, 3.5f,  0.5f,
+     2.0f, 0.7f, 0.45f,
+     8.0f,
+     0.58f, 0.52f, 0.05f,                    // blue → slightly different blue
+     0.5f, 1.0f, 2.0f,                       // desaturated, very bright, strong glow
+     2.8f, 1.6f, 0.35f,
+     0.95f, 0.18f, 0.05f,                    // wide FOV, strong shake
+     0.04f},
+
+    // 6: Ember Flow — spiral-heavy, red-gold, warm
+    {"Ember Flow",
+     1.2f, 1.0f,  0.3f, 0.25f,  0.2f,
+     2.0f, 0.6f,  0.2f,
+     4.0f, 5.0f,  0.7f, 0.3f,               // prominent spirals
+     0.6f, 1.2f,
+     0.15f,
+     0.10f, 0.08f,  2.0f, 2.5f,  0.3f,
+     2.5f, 0.2f, 0.45f,
+     8.0f,
+     0.03f, 0.1f, 0.02f,                     // red → gold
+     0.9f, 0.9f, 1.5f,
+     3.5f, 2.0f, 0.15f,
+     0.8f, 0.1f, 0.18f,
+     0.05f},
+
+    // 7: Aurora Borealis — full rainbow, smooth, beautiful color cycling
+    {"Aurora Borealis",
+     2.0f, 1.5f,  0.4f, 0.3f,  0.25f,
+     3.0f, 1.0f,  0.2f,
+     1.0f, 3.0f,  0.5f, 0.15f,
+     0.9f, 1.2f,
+     0.2f,
+     0.08f, 0.06f,  2.0f, 2.5f,  0.25f,
+     1.5f, 0.35f, 0.4f,
+     9.0f,
+     0.0f, 1.0f, 0.06f,                      // full spectrum: 0 → 1.0 hue range
+     0.85f, 0.95f, 1.2f,
+     3.5f, 1.8f, 0.15f,
+     0.8f, 0.08f, 0.15f,
+     0.055f},
 };
 
 static const int NUM_PRESETS = sizeof(g_presets) / sizeof(g_presets[0]);
 
-// --- HSV to RGB conversion ---
+// ============================================================
+// Math utilities
+// ============================================================
+
 void Visualization::HSVtoRGB(float h, float s, float v, float& r, float& g, float& b) {
     h = fmodf(h, 1.0f);
     if (h < 0) h += 1.0f;
@@ -115,7 +170,14 @@ void Visualization::HSVtoRGB(float h, float s, float v, float& r, float& g, floa
     }
 }
 
-// --- Smooth interpolation ---
+// Wyvill falloff: smooth organic decay from 1 at r=0 to 0 at r>=1
+float Visualization::Wyvill(float r) {
+    if (r >= 1.0f) return 0.0f;
+    float r2 = r * r;
+    float t = 1.0f - r2;
+    return t * t * t;
+}
+
 static float smoothstep(float t) {
     t = t < 0 ? 0 : (t > 1 ? 1 : t);
     return t * t * (3.0f - 2.0f * t);
@@ -125,19 +187,28 @@ static float lerp(float a, float b, float t) {
     return a + (b - a) * t;
 }
 
-// --- Initialization ---
+static float clamp01(float x) {
+    return x < 0 ? 0 : (x > 1 ? 1 : x);
+}
+
+// ============================================================
+// Initialization
+// ============================================================
+
 void Visualization::Init() {
     vertices_.resize(GRID_VERTICES);
     indices_.reserve(GRID_INDICES);
 
-    // Build index buffer for line list (static — grid topology doesn't change)
+    // Build line-list index buffer (static topology)
     indices_.clear();
+    // Horizontal lines
     for (int row = 0; row < GRID_SIZE; row++) {
         for (int col = 0; col < GRID_SIZE - 1; col++) {
             indices_.push_back(row * GRID_SIZE + col);
             indices_.push_back(row * GRID_SIZE + col + 1);
         }
     }
+    // Vertical lines
     for (int row = 0; row < GRID_SIZE - 1; row++) {
         for (int col = 0; col < GRID_SIZE; col++) {
             indices_.push_back(row * GRID_SIZE + col);
@@ -152,126 +223,202 @@ void Visualization::Init() {
     presetTimer_ = 0;
 
     memset(&audio_, 0, sizeof(audio_));
+    memset(prevSpectrum_, 0, sizeof(prevSpectrum_));
 }
 
-// --- Audio analysis ---
+// ============================================================
+// Audio analysis — fast attack, slow decay per bin
+// ============================================================
+
 void Visualization::AnalyzeAudio(const unsigned char spectrum[2][576],
                                   const unsigned char waveform[2][576]) {
-    // Mix stereo spectrum to mono and normalize
-    float specNorm[256];
+    // Per-bin spectrum with asymmetric smoothing (fast attack, slow decay)
+    float raw[256];
     for (int i = 0; i < 256; i++) {
-        float val = ((float)spectrum[0][i] + (float)spectrum[1][i]) * 0.5f / 255.0f;
-        specNorm[i] = val;
-        audio_.spectrum[i] = lerp(audio_.spectrum[i], val, 0.3f); // smooth
+        raw[i] = ((float)spectrum[0][i] + (float)spectrum[1][i]) * 0.5f / 255.0f;
+
+        if (raw[i] > audio_.spectrum[i])
+            audio_.spectrum[i] = lerp(audio_.spectrum[i], raw[i], 0.55f);   // fast attack
+        else
+            audio_.spectrum[i] = lerp(audio_.spectrum[i], raw[i], 0.06f);   // slow decay
     }
 
-    // Band energies
+    // Normalize waveform to -1..1 (unsigned char centered at 128)
+    for (int i = 0; i < 576; i++) {
+        float sample = ((float)waveform[0][i] + (float)waveform[1][i]) * 0.5f;
+        float normalized = (sample - 128.0f) / 128.0f;
+        audio_.waveform[i] = lerp(audio_.waveform[i], normalized, 0.4f);
+    }
+
+    // Band energies from smoothed spectrum
     float bass = 0, mid = 0, treble = 0;
-    for (int i = 0; i < 16; i++)   bass   += specNorm[i];
-    for (int i = 16; i < 80; i++)  mid    += specNorm[i];
-    for (int i = 80; i < 256; i++) treble += specNorm[i];
+    for (int i = 0; i < 16; i++)   bass   += audio_.spectrum[i];
+    for (int i = 16; i < 80; i++)  mid    += audio_.spectrum[i];
+    for (int i = 80; i < 256; i++) treble += audio_.spectrum[i];
     bass   /= 16.0f;
     mid    /= 64.0f;
     treble /= 176.0f;
 
-    // Smooth with exponential decay
     audio_.bass    = lerp(audio_.bass,    bass,   0.25f);
     audio_.mid     = lerp(audio_.mid,     mid,    0.2f);
     audio_.treble  = lerp(audio_.treble,  treble, 0.15f);
     audio_.totalEnergy = audio_.bass * 0.5f + audio_.mid * 0.3f + audio_.treble * 0.2f;
 
-    // Simple beat detection: sharp rise in bass
+    // Beat detection: sharp bass onset
     float bassDerivative = bass - prevBassEnergy_;
     prevBassEnergy_ = bass;
-    if (bassDerivative > 0.15f)
+    if (bassDerivative > 0.12f)
         audio_.beatIntensity = 1.0f;
     else
-        audio_.beatIntensity *= 0.9f;
+        audio_.beatIntensity *= 0.92f;
+
+    // Spectral flux: sum of positive changes across all bins
+    float flux = 0;
+    for (int i = 0; i < 256; i++) {
+        float diff = raw[i] - prevSpectrum_[i];
+        if (diff > 0) flux += diff;
+        prevSpectrum_[i] = raw[i];
+    }
+    audio_.spectralFlux = lerp(audio_.spectralFlux, flux / 64.0f, 0.3f);
 }
 
-// --- Surface generation ---
-void Visualization::GenerateSurface(float time) {
-    float t = smoothstep(morphT_);
-    Preset p = (morphT_ >= 1.0f)
-        ? g_presets[currentPreset_]
-        : LerpPreset(g_presets[currentPreset_], g_presets[targetPreset_], t);
+// ============================================================
+// Surface generation — the core visual engine
+// ============================================================
 
+void Visualization::GenerateSurface(float time) {
+    Preset p = GetActivePreset();
     float gridScale = 2.0f / (GRID_SIZE - 1);
 
     for (int row = 0; row < GRID_SIZE; row++) {
+        // Frequency mapping: row 0 = bass, row N = treble
+        float freqT = (float)row / (float)(GRID_SIZE - 1);
+        int freqBin = (int)(freqT * 255.0f);
+        float specEnergy = audio_.spectrum[freqBin];
+
         for (int col = 0; col < GRID_SIZE; col++) {
             float x = -1.0f + col * gridScale;
             float y = -1.0f + row * gridScale;
+
+            // --- Grid XY warping (organic flowing distortion) ---
+            float wx = x + sinf(y * p.warpFreqY * PI + time * p.warpSpeed)
+                          * p.warpAmountX * (1.0f + audio_.bass * 0.5f);
+            float wy = y + cosf(x * p.warpFreqX * PI + time * p.warpSpeed * 0.7f)
+                          * p.warpAmountY * (1.0f + audio_.mid * 0.5f);
+
             float z = 0;
 
-            // Crossing sine waves
-            z += sinf(x * p.freqX * PI + time * p.speedX)
-               * cosf(y * p.freqY * PI + time * p.speedY)
+            // --- Spectrum-driven displacement (WhiteCap signature) ---
+            // Each row reacts to its corresponding frequency bin
+            float specZ = powf(specEnergy, p.spectrumExponent) * p.spectrumScale;
+            z += specZ;
+
+            // --- Waveform overlay (audio shape embedded into surface) ---
+            if (p.waveformScale > 0.001f) {
+                int waveSample = (int)((float)col / (float)(GRID_SIZE - 1) * 575.0f);
+                z += audio_.waveform[waveSample] * p.waveformScale * (0.5f + specEnergy);
+            }
+
+            // --- Crossing sine waves ---
+            z += sinf(wx * p.waveFreqX * PI + time * p.waveSpeedX)
+               * cosf(wy * p.waveFreqY * PI + time * p.waveSpeedY)
                * p.waveAmp;
 
-            // Concentric ripple
-            float r = sqrtf(x * x + y * y);
+            // --- Concentric ripple ---
+            float r = sqrtf(wx * wx + wy * wy);
             z += sinf(r * p.rippleFreq * PI - time * p.rippleSpeed) * p.rippleAmp;
 
-            // Spiral
+            // --- Spiral arms ---
             if (p.spiralAmp > 0.001f) {
-                float angle = atan2f(y, x);
-                z += sinf(angle * p.spiralArms + r * p.spiralTightness * PI - time * 0.8f)
+                float angle = atan2f(wy, wx);
+                z += sinf(angle * p.spiralArms + r * p.spiralTightness * PI - time * p.spiralSpeed)
                    * p.spiralAmp;
             }
 
-            // Audio modulation
+            // --- Audio modulation ---
             z *= (1.0f + audio_.bass * p.bassScale);
-            // Treble adds fine detail
-            z += audio_.treble * sinf(x * 15.0f * PI + time * 2.0f)
-               * sinf(y * 15.0f * PI + time * 1.5f) * p.trebleDetail * 0.15f;
-
+            // Treble adds fine-grained detail
+            z += audio_.treble * sinf(wx * 15.0f * PI + time * 2.0f)
+               * sinf(wy * 15.0f * PI + time * 1.5f) * p.trebleDetail * 0.15f;
             // Beat pulse
-            z *= (1.0f + audio_.beatIntensity * 0.3f);
+            z *= (1.0f + audio_.beatIntensity * 0.25f);
 
             z *= p.amplitude;
 
-            // Color: hue from height + time, saturation and brightness from preset
-            float hue = p.hueBase + z * p.hueRange + time * p.hueSpeed;
-            float bright = p.brightness * (0.6f + audio_.totalEnergy * 0.4f + fabsf(z) * 0.8f);
-            bright = bright > 1.0f ? 1.0f : bright;
+            // --- Two-tone color: frequency-mapped hue ---
+            float hue = lerp(p.hueLow, p.hueHigh, freqT) + time * p.hueSpeed;
+            // Brightness from per-vertex spectrum energy and overall audio
+            float bright = p.brightness
+                         * (0.3f + specEnergy * p.glowIntensity * 0.7f
+                            + audio_.totalEnergy * 0.3f
+                            + fabsf(z) * 0.4f);
+            bright = clamp01(bright);
 
             float cr, cg, cb;
-            HSVtoRGB(hue, p.saturation, bright);
             HSVtoRGB(hue, p.saturation, bright, cr, cg, cb);
 
+            // --- Edge falloff: soft transparency at grid boundaries ---
+            float edgeDistX = fminf((float)col, (float)(GRID_SIZE - 1 - col));
+            float edgeDistY = fminf((float)row, (float)(GRID_SIZE - 1 - row));
+            float edgeDist = fminf(edgeDistX, edgeDistY);
+            float alpha = smoothstep(clamp01(edgeDist / p.edgeFalloff));
+
             int idx = row * GRID_SIZE + col;
-            vertices_[idx] = {x, z, y, cr, cg, cb, 1.0f};
+            vertices_[idx] = {wx, z, wy, cr, cg, cb, alpha};
         }
     }
 }
 
-// --- Camera ---
+// ============================================================
+// Camera — orbit with beat shake, drift, and tilt
+// ============================================================
+
 void Visualization::ComputeCamera(float time, float aspectRatio, float* outMatrix) const {
-    Preset p = (morphT_ >= 1.0f)
-        ? g_presets[currentPreset_]
-        : LerpPreset(g_presets[currentPreset_], g_presets[targetPreset_], smoothstep(morphT_));
+    Preset p = GetActivePreset();
 
     float angle = time * p.camSpeed;
-    float dist = p.camDist + audio_.bass * 0.5f;
+    float dist = p.camDist + audio_.bass * 0.4f;
+    // Zoom pulse on beat
+    dist *= (1.0f - audio_.beatIntensity * 0.04f);
     float height = p.camHeight + sinf(time * 0.2f) * 0.3f + audio_.mid * 0.3f;
 
     float eyeX = cosf(angle) * dist;
     float eyeZ = sinf(angle) * dist;
     float eyeY = height;
 
-    // Look-at: target is origin
-    float fwdX = -eyeX, fwdY = -eyeY, fwdZ = -eyeZ;
+    // Beat-reactive camera shake
+    float shakeX = sinf(time * 47.0f) * audio_.beatIntensity * p.camShake * 0.1f;
+    float shakeY = cosf(time * 53.0f) * audio_.beatIntensity * p.camShake * 0.1f;
+    eyeX += shakeX;
+    eyeY += shakeY;
+
+    // Look-at target: slowly drifts around origin
+    float lookX = sinf(time * 0.1f) * 0.15f;
+    float lookZ = cosf(time * 0.13f) * 0.15f;
+
+    // Forward vector
+    float fwdX = lookX - eyeX;
+    float fwdY = 0.0f - eyeY;
+    float fwdZ = lookZ - eyeZ;
     float fwdLen = sqrtf(fwdX * fwdX + fwdY * fwdY + fwdZ * fwdZ);
     fwdX /= fwdLen; fwdY /= fwdLen; fwdZ /= fwdLen;
 
-    // Up = (0, 1, 0)
-    float rightX = fwdZ, rightY = 0, rightZ = -fwdX;
-    float rightLen = sqrtf(rightX * rightX + rightZ * rightZ);
+    // World up, then apply camera tilt (roll)
+    float roll = sinf(time * 0.15f) * p.camTilt;
+    float worldUpX = sinf(roll);
+    float worldUpY = cosf(roll);
+    float worldUpZ = 0.0f;
+
+    // Right = forward x up
+    float rightX = fwdY * worldUpZ - fwdZ * worldUpY;
+    float rightY = fwdZ * worldUpX - fwdX * worldUpZ;
+    float rightZ = fwdX * worldUpY - fwdY * worldUpX;
+    float rightLen = sqrtf(rightX * rightX + rightY * rightY + rightZ * rightZ);
     if (rightLen > 0.0001f) {
-        rightX /= rightLen; rightZ /= rightLen;
+        rightX /= rightLen; rightY /= rightLen; rightZ /= rightLen;
     }
 
+    // True up = right x forward
     float upX = rightY * fwdZ - rightZ * fwdY;
     float upY = rightZ * fwdX - rightX * fwdZ;
     float upZ = rightX * fwdY - rightY * fwdX;
@@ -288,7 +435,7 @@ void Visualization::ComputeCamera(float time, float aspectRatio, float* outMatri
     };
 
     // Perspective projection (row-major, LH)
-    float fov = 0.8f; // ~45 degrees
+    float fov = p.camFOV;
     float nearZ = 0.1f, farZ = 50.0f;
     float yScale = 1.0f / tanf(fov * 0.5f);
     float xScale = yScale / aspectRatio;
@@ -301,49 +448,52 @@ void Visualization::ComputeCamera(float time, float aspectRatio, float* outMatri
         0, 0, -nearZ * zRange, 0
     };
 
-    // Multiply view * proj (row-major)
+    // view * proj (row-major)
     for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 4; j++) {
             float sum = 0;
-            for (int k = 0; k < 4; k++) {
+            for (int k = 0; k < 4; k++)
                 sum += view[i * 4 + k] * proj[k * 4 + j];
-            }
             outMatrix[i * 4 + j] = sum;
         }
     }
 }
 
-// --- Preset interpolation ---
+// ============================================================
+// Preset interpolation & helpers
+// ============================================================
+
+Preset Visualization::GetActivePreset() const {
+    if (morphT_ >= 1.0f)
+        return g_presets[currentPreset_];
+    return LerpPreset(g_presets[currentPreset_], g_presets[targetPreset_], smoothstep(morphT_));
+}
+
 Preset Visualization::LerpPreset(const Preset& a, const Preset& b, float t) const {
     Preset r = {};
     r.name = b.name;
-    r.freqX = lerp(a.freqX, b.freqX, t);
-    r.freqY = lerp(a.freqY, b.freqY, t);
-    r.speedX = lerp(a.speedX, b.speedX, t);
-    r.speedY = lerp(a.speedY, b.speedY, t);
-    r.waveAmp = lerp(a.waveAmp, b.waveAmp, t);
-    r.rippleFreq = lerp(a.rippleFreq, b.rippleFreq, t);
-    r.rippleSpeed = lerp(a.rippleSpeed, b.rippleSpeed, t);
-    r.rippleAmp = lerp(a.rippleAmp, b.rippleAmp, t);
-    r.spiralArms = lerp(a.spiralArms, b.spiralArms, t);
-    r.spiralTightness = lerp(a.spiralTightness, b.spiralTightness, t);
-    r.spiralAmp = lerp(a.spiralAmp, b.spiralAmp, t);
-    r.bassScale = lerp(a.bassScale, b.bassScale, t);
-    r.trebleDetail = lerp(a.trebleDetail, b.trebleDetail, t);
-    r.amplitude = lerp(a.amplitude, b.amplitude, t);
-    r.hueBase = lerp(a.hueBase, b.hueBase, t);
-    r.hueRange = lerp(a.hueRange, b.hueRange, t);
-    r.hueSpeed = lerp(a.hueSpeed, b.hueSpeed, t);
-    r.saturation = lerp(a.saturation, b.saturation, t);
-    r.brightness = lerp(a.brightness, b.brightness, t);
-    r.camDist = lerp(a.camDist, b.camDist, t);
-    r.camHeight = lerp(a.camHeight, b.camHeight, t);
-    r.camSpeed = lerp(a.camSpeed, b.camSpeed, t);
-    r.fadeAmount = lerp(a.fadeAmount, b.fadeAmount, t);
+
+    #define LP(field) r.field = lerp(a.field, b.field, t)
+    LP(waveFreqX); LP(waveFreqY); LP(waveSpeedX); LP(waveSpeedY); LP(waveAmp);
+    LP(rippleFreq); LP(rippleSpeed); LP(rippleAmp);
+    LP(spiralArms); LP(spiralTightness); LP(spiralSpeed); LP(spiralAmp);
+    LP(spectrumScale); LP(spectrumExponent);
+    LP(waveformScale);
+    LP(warpAmountX); LP(warpAmountY); LP(warpFreqX); LP(warpFreqY); LP(warpSpeed);
+    LP(bassScale); LP(trebleDetail); LP(amplitude);
+    LP(edgeFalloff);
+    LP(hueLow); LP(hueHigh); LP(hueSpeed); LP(saturation); LP(brightness); LP(glowIntensity);
+    LP(camDist); LP(camHeight); LP(camSpeed); LP(camFOV); LP(camShake); LP(camTilt);
+    LP(fadeAmount);
+    #undef LP
+
     return r;
 }
 
-// --- Public interface ---
+// ============================================================
+// Public interface
+// ============================================================
+
 void Visualization::Update(float deltaTime,
                            const unsigned char spectrum[2][576],
                            const unsigned char waveform[2][576]) {
@@ -351,7 +501,7 @@ void Visualization::Update(float deltaTime,
 
     AnalyzeAudio(spectrum, waveform);
 
-    // Auto-preset switching
+    // Auto-preset cycling
     presetTimer_ += deltaTime;
     if (presetTimer_ >= presetInterval_ && morphT_ >= 1.0f) {
         presetTimer_ = 0;
@@ -360,9 +510,9 @@ void Visualization::Update(float deltaTime,
         morphT_ = 0;
     }
 
-    // Advance morph
+    // Advance morph — WhiteCap-style easing: y = 1-(1-x)^1.5
     if (morphT_ < 1.0f) {
-        morphT_ += deltaTime * 0.4f; // ~2.5 second transition
+        morphT_ += deltaTime * 0.4f;
         if (morphT_ >= 1.0f) {
             morphT_ = 1.0f;
             currentPreset_ = targetPreset_;
@@ -373,49 +523,36 @@ void Visualization::Update(float deltaTime,
 }
 
 void Visualization::GetViewProjectionMatrix(float* outMatrix, float aspectRatio) const {
-    const_cast<Visualization*>(this)->ComputeCamera(time_, aspectRatio, outMatrix);
+    ComputeCamera(time_, aspectRatio, outMatrix);
 }
 
 float Visualization::GetFadeAmount() const {
-    if (morphT_ >= 1.0f)
-        return g_presets[currentPreset_].fadeAmount;
-    float t = smoothstep(morphT_);
-    return lerp(g_presets[currentPreset_].fadeAmount, g_presets[targetPreset_].fadeAmount, t);
+    return GetActivePreset().fadeAmount;
 }
 
 void Visualization::NextPreset() {
-    if (morphT_ < 1.0f) {
-        currentPreset_ = targetPreset_;
-        morphT_ = 1.0f;
-    }
+    if (morphT_ < 1.0f) { currentPreset_ = targetPreset_; morphT_ = 1.0f; }
     targetPreset_ = (currentPreset_ + 1) % NUM_PRESETS;
     morphT_ = 0;
     presetTimer_ = 0;
 }
 
 void Visualization::PrevPreset() {
-    if (morphT_ < 1.0f) {
-        currentPreset_ = targetPreset_;
-        morphT_ = 1.0f;
-    }
+    if (morphT_ < 1.0f) { currentPreset_ = targetPreset_; morphT_ = 1.0f; }
     targetPreset_ = (currentPreset_ - 1 + NUM_PRESETS) % NUM_PRESETS;
     morphT_ = 0;
     presetTimer_ = 0;
 }
 
 void Visualization::RandomPreset() {
-    if (morphT_ < 1.0f) {
-        currentPreset_ = targetPreset_;
-        morphT_ = 1.0f;
-    }
+    if (morphT_ < 1.0f) { currentPreset_ = targetPreset_; morphT_ = 1.0f; }
     targetPreset_ = rand() % NUM_PRESETS;
     morphT_ = 0;
     presetTimer_ = 0;
 }
 
 const char* Visualization::GetCurrentPresetName() const {
-    if (morphT_ < 1.0f)
-        return g_presets[targetPreset_].name;
+    if (morphT_ < 1.0f) return g_presets[targetPreset_].name;
     return g_presets[currentPreset_].name;
 }
 

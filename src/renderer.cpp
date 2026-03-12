@@ -57,7 +57,7 @@ bool Renderer::Init(HWND hwnd, int width, int height) {
     rd.FillMode = D3D11_FILL_SOLID;
     device_->CreateRasterizerState(&rd, &solidRaster_);
 
-    // Alpha blending
+    // Alpha blending (for fade pass)
     D3D11_BLEND_DESC bd = {};
     bd.RenderTarget[0].BlendEnable = TRUE;
     bd.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
@@ -68,6 +68,18 @@ bool Renderer::Init(HWND hwnd, int width, int height) {
     bd.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
     bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
     device_->CreateBlendState(&bd, &blendState_);
+
+    // Additive blending (for wireframe — phosphor glow at intersections)
+    D3D11_BLEND_DESC abd = {};
+    abd.RenderTarget[0].BlendEnable = TRUE;
+    abd.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+    abd.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
+    abd.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+    abd.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+    abd.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+    abd.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+    abd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+    device_->CreateBlendState(&abd, &additiveBlendState_);
 
     // Sampler
     D3D11_SAMPLER_DESC sd = {};
@@ -98,6 +110,7 @@ void Renderer::Shutdown() {
     SafeRelease(wireRaster_);
     SafeRelease(solidRaster_);
     SafeRelease(blendState_);
+    SafeRelease(additiveBlendState_);
     SafeRelease(sampler_);
     SafeRelease(noDepthState_);
     SafeRelease(vertexBuffer_);
@@ -161,10 +174,10 @@ void Renderer::BeginFrame(float fadeAmount) {
         context_->PSSetShaderResources(0, 1, &nullSRV);
     }
 
-    // Set up for wireframe drawing
+    // Set up for wireframe drawing with additive blending (phosphor glow)
     context_->RSSetState(wireRaster_);
     float blendFactor[4] = {0, 0, 0, 0};
-    context_->OMSetBlendState(blendState_, blendFactor, 0xFFFFFFFF);
+    context_->OMSetBlendState(additiveBlendState_, blendFactor, 0xFFFFFFFF);
     context_->OMSetDepthStencilState(noDepthState_, 0);
 }
 
@@ -308,7 +321,7 @@ bool Renderer::CreateRenderTargets() {
     td.Height = height_;
     td.MipLevels = 1;
     td.ArraySize = 1;
-    td.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    td.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
     td.SampleDesc.Count = 1;
     td.Usage = D3D11_USAGE_DEFAULT;
     td.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;

@@ -38,6 +38,8 @@ public:
 
     int GetWidth() const { return width_; }
     int GetHeight() const { return height_; }
+    bool IsDeviceLost() const { return deviceLost_; }
+    bool HandleDeviceLost();
 
 private:
     bool CreateDeviceAndSwapChain(HWND hwnd, int w, int h);
@@ -86,6 +88,7 @@ private:
     ID3D11Buffer* fadeConstBuffer_ = nullptr;
     int maxVertices_ = 0;
     int maxIndices_  = 0;
+    bool deviceLost_ = false;
 };
 
 } // namespace ombro

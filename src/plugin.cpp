@@ -99,7 +99,7 @@ static void ToggleFullscreen(HWND hwnd) {
         HMONITOR mon = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
         MONITORINFO mi = {};
         mi.cbSize = sizeof(mi);
-        GetMonitorInfoW(mon, &mi);
+        if (!GetMonitorInfoW(mon, &mi)) return;
 
         SetWindowLongW(hwnd, GWL_STYLE, WS_POPUP | WS_VISIBLE);
         SetWindowPos(hwnd, HWND_TOP,
@@ -166,6 +166,8 @@ static int __cdecl VisInit(winampVisModule* mod) {
     GetClientRect(g_visWindow, &rc);
     int clientW = rc.right - rc.left;
     int clientH = rc.bottom - rc.top;
+    if (clientW <= 0) clientW = 1;
+    if (clientH <= 0) clientH = 1;
 
     // Initialize renderer
     g_renderer = new ombro::Renderer();
@@ -173,6 +175,7 @@ static int __cdecl VisInit(winampVisModule* mod) {
         delete g_renderer;
         g_renderer = nullptr;
         DestroyWindow(g_visWindow);
+        g_visWindow = nullptr;
         return 1;
     }
 
@@ -186,6 +189,7 @@ static int __cdecl VisInit(winampVisModule* mod) {
 
     // Initialize timing
     QueryPerformanceFrequency(&g_perfFreq);
+    if (g_perfFreq.QuadPart == 0) g_perfFreq.QuadPart = 1; // Guard against zero
     QueryPerformanceCounter(&g_lastTime);
 
     g_fullscreen = false;
@@ -196,10 +200,17 @@ static int __cdecl VisRender(winampVisModule* mod) {
     if (!g_visWindow || !IsWindow(g_visWindow)) return 1;
     if (!g_renderer || !g_vis) return 1;
 
+    // Handle device lost — attempt recovery
+    if (g_renderer->IsDeviceLost()) {
+        if (!g_renderer->HandleDeviceLost()) return 1;
+    }
+
     // Compute delta time
     LARGE_INTEGER now;
     QueryPerformanceCounter(&now);
-    float dt = (float)(now.QuadPart - g_lastTime.QuadPart) / (float)g_perfFreq.QuadPart;
+    float dt = (g_perfFreq.QuadPart > 0)
+        ? (float)(now.QuadPart - g_lastTime.QuadPart) / (float)g_perfFreq.QuadPart
+        : 0.016f;
     g_lastTime = now;
     // Clamp dt to avoid large jumps
     if (dt > 0.1f) dt = 0.1f;

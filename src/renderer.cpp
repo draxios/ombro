@@ -20,6 +20,9 @@ static void SafeRelease(T*& ptr) {
     if (ptr) { ptr->Release(); ptr = nullptr; }
 }
 
+// Check HRESULT and return false on failure
+#define HR_CHECK(hr) do { if (FAILED(hr)) return false; } while(0)
+
 static ID3DBlob* CompileShader(const char* source, const char* entry, const char* target) {
     ID3DBlob* blob = nullptr;
     ID3DBlob* errors = nullptr;
@@ -51,11 +54,11 @@ bool Renderer::Init(HWND hwnd, int width, int height) {
     rd.CullMode = D3D11_CULL_NONE;
     rd.DepthClipEnable = TRUE;
     rd.AntialiasedLineEnable = TRUE;
-    device_->CreateRasterizerState(&rd, &wireRaster_);
+    HR_CHECK(device_->CreateRasterizerState(&rd, &wireRaster_));
 
     // Solid rasterizer (for fullscreen quad)
     rd.FillMode = D3D11_FILL_SOLID;
-    device_->CreateRasterizerState(&rd, &solidRaster_);
+    HR_CHECK(device_->CreateRasterizerState(&rd, &solidRaster_));
 
     // Alpha blending (for fade pass)
     D3D11_BLEND_DESC bd = {};
@@ -67,7 +70,7 @@ bool Renderer::Init(HWND hwnd, int width, int height) {
     bd.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
     bd.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
     bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-    device_->CreateBlendState(&bd, &blendState_);
+    HR_CHECK(device_->CreateBlendState(&bd, &blendState_));
 
     // Additive blending (for wireframe — phosphor glow at intersections)
     D3D11_BLEND_DESC abd = {};
@@ -79,7 +82,7 @@ bool Renderer::Init(HWND hwnd, int width, int height) {
     abd.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
     abd.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
     abd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-    device_->CreateBlendState(&abd, &additiveBlendState_);
+    HR_CHECK(device_->CreateBlendState(&abd, &additiveBlendState_));
 
     // Sampler
     D3D11_SAMPLER_DESC sd = {};
@@ -87,12 +90,12 @@ bool Renderer::Init(HWND hwnd, int width, int height) {
     sd.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
     sd.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
     sd.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-    device_->CreateSamplerState(&sd, &sampler_);
+    HR_CHECK(device_->CreateSamplerState(&sd, &sampler_));
 
     // No depth testing
     D3D11_DEPTH_STENCIL_DESC dsd = {};
     dsd.DepthEnable = FALSE;
-    device_->CreateDepthStencilState(&dsd, &noDepthState_);
+    HR_CHECK(device_->CreateDepthStencilState(&dsd, &noDepthState_));
 
     return true;
 }
@@ -125,6 +128,7 @@ void Renderer::Shutdown() {
 void Renderer::Resize(int width, int height) {
     if (width <= 0 || height <= 0) return;
     if (width == width_ && height == height_) return;
+    if (!device_ || !context_ || !swapChain_) return;
 
     width_ = width;
     height_ = height;
@@ -133,7 +137,11 @@ void Renderer::Resize(int width, int height) {
     ReleaseRenderTargets();
     SafeRelease(backBufferRTV_);
 
-    swapChain_->ResizeBuffers(0, width, height, DXGI_FORMAT_UNKNOWN, 0);
+    HRESULT hr = swapChain_->ResizeBuffers(0, width, height, DXGI_FORMAT_UNKNOWN, 0);
+    if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET) {
+        deviceLost_ = true;
+        return;
+    }
     CreateRenderTargets();
 }
 
@@ -195,7 +203,7 @@ void Renderer::DrawLines(const Vertex* vertices, int vertexCount,
         bd.Usage = D3D11_USAGE_DYNAMIC;
         bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
         bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-        device_->CreateBuffer(&bd, nullptr, &vertexBuffer_);
+        if (FAILED(device_->CreateBuffer(&bd, nullptr, &vertexBuffer_))) return;
     }
 
     // Grow index buffer if needed
@@ -207,17 +215,19 @@ void Renderer::DrawLines(const Vertex* vertices, int vertexCount,
         bd.Usage = D3D11_USAGE_DYNAMIC;
         bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
         bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-        device_->CreateBuffer(&bd, nullptr, &indexBuffer_);
+        if (FAILED(device_->CreateBuffer(&bd, nullptr, &indexBuffer_))) return;
     }
 
     // Upload vertex data
     D3D11_MAPPED_SUBRESOURCE mapped;
-    context_->Map(vertexBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+    HRESULT hr = context_->Map(vertexBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+    if (FAILED(hr)) return;
     memcpy(mapped.pData, vertices, vertexCount * sizeof(Vertex));
     context_->Unmap(vertexBuffer_, 0);
 
     // Upload index data
-    context_->Map(indexBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+    hr = context_->Map(indexBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+    if (FAILED(hr)) return;
     memcpy(mapped.pData, indices, indexCount * sizeof(uint32_t));
     context_->Unmap(indexBuffer_, 0);
 
@@ -272,8 +282,69 @@ void Renderer::EndFrame() {
     ID3D11ShaderResourceView* nullSRV = nullptr;
     context_->PSSetShaderResources(0, 1, &nullSRV);
 
-    swapChain_->Present(1, 0);
+    HRESULT hr = swapChain_->Present(1, 0);
+    if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET) {
+        deviceLost_ = true;
+        return;
+    }
     currentFrame_ = curr;
+}
+
+bool Renderer::HandleDeviceLost() {
+    if (!deviceLost_) return true;
+
+    Shutdown();
+
+    if (!CreateDeviceAndSwapChain(hwnd_, width_, height_)) return false;
+    if (!CreateRenderTargets()) return false;
+    if (!CreateShaders()) return false;
+    if (!CreateBuffers()) return false;
+
+    // Recreate states
+    D3D11_RASTERIZER_DESC rd = {};
+    rd.FillMode = D3D11_FILL_WIREFRAME;
+    rd.CullMode = D3D11_CULL_NONE;
+    rd.DepthClipEnable = TRUE;
+    rd.AntialiasedLineEnable = TRUE;
+    if (FAILED(device_->CreateRasterizerState(&rd, &wireRaster_))) return false;
+    rd.FillMode = D3D11_FILL_SOLID;
+    if (FAILED(device_->CreateRasterizerState(&rd, &solidRaster_))) return false;
+
+    D3D11_BLEND_DESC bd = {};
+    bd.RenderTarget[0].BlendEnable = TRUE;
+    bd.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+    bd.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+    bd.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+    bd.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+    bd.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+    bd.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+    bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+    if (FAILED(device_->CreateBlendState(&bd, &blendState_))) return false;
+
+    D3D11_BLEND_DESC abd = {};
+    abd.RenderTarget[0].BlendEnable = TRUE;
+    abd.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+    abd.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
+    abd.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+    abd.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+    abd.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+    abd.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+    abd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+    if (FAILED(device_->CreateBlendState(&abd, &additiveBlendState_))) return false;
+
+    D3D11_SAMPLER_DESC sd = {};
+    sd.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+    sd.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+    sd.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+    sd.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+    if (FAILED(device_->CreateSamplerState(&sd, &sampler_))) return false;
+
+    D3D11_DEPTH_STENCIL_DESC dsd = {};
+    dsd.DepthEnable = FALSE;
+    if (FAILED(device_->CreateDepthStencilState(&dsd, &noDepthState_))) return false;
+
+    deviceLost_ = false;
+    return true;
 }
 
 // --- Private implementation ---
@@ -299,10 +370,18 @@ bool Renderer::CreateDeviceAndSwapChain(HWND hwnd, int w, int h) {
     flags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
+    // Try hardware first, fall back to WARP software renderer
     HRESULT hr = D3D11CreateDeviceAndSwapChain(
         nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, flags,
         levels, 2, D3D11_SDK_VERSION, &scd,
         &swapChain_, &device_, &featureLevel, &context_);
+
+    if (FAILED(hr)) {
+        hr = D3D11CreateDeviceAndSwapChain(
+            nullptr, D3D_DRIVER_TYPE_WARP, nullptr, flags,
+            levels, 2, D3D11_SDK_VERSION, &scd,
+            &swapChain_, &device_, &featureLevel, &context_);
+    }
 
     return SUCCEEDED(hr);
 }
@@ -310,10 +389,10 @@ bool Renderer::CreateDeviceAndSwapChain(HWND hwnd, int w, int h) {
 bool Renderer::CreateRenderTargets() {
     // Back buffer RTV
     ID3D11Texture2D* backBuffer = nullptr;
-    swapChain_->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer);
-    if (!backBuffer) return false;
-    device_->CreateRenderTargetView(backBuffer, nullptr, &backBufferRTV_);
+    HR_CHECK(swapChain_->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer));
+    HRESULT hr = device_->CreateRenderTargetView(backBuffer, nullptr, &backBufferRTV_);
     backBuffer->Release();
+    HR_CHECK(hr);
 
     // Ping-pong frame textures for afterglow
     D3D11_TEXTURE2D_DESC td = {};
@@ -327,9 +406,9 @@ bool Renderer::CreateRenderTargets() {
     td.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 
     for (int i = 0; i < 2; i++) {
-        device_->CreateTexture2D(&td, nullptr, &frameTex_[i]);
-        device_->CreateRenderTargetView(frameTex_[i], nullptr, &frameRTV_[i]);
-        device_->CreateShaderResourceView(frameTex_[i], nullptr, &frameSRV_[i]);
+        HR_CHECK(device_->CreateTexture2D(&td, nullptr, &frameTex_[i]));
+        HR_CHECK(device_->CreateRenderTargetView(frameTex_[i], nullptr, &frameRTV_[i]));
+        HR_CHECK(device_->CreateShaderResourceView(frameTex_[i], nullptr, &frameSRV_[i]));
 
         // Clear to black
         float black[4] = {0, 0, 0, 1};
@@ -343,30 +422,35 @@ bool Renderer::CreateShaders() {
     // Wireframe shaders
     ID3DBlob* vsBlob = CompileShader(g_wireframeVS, "main", "vs_4_0");
     if (!vsBlob) return false;
-    device_->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), nullptr, &wireVS_);
+    HRESULT hr = device_->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), nullptr, &wireVS_);
+    if (FAILED(hr)) { vsBlob->Release(); return false; }
 
     D3D11_INPUT_ELEMENT_DESC layout[] = {
         {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0},
         {"COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT,  0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
     };
-    device_->CreateInputLayout(layout, 2, vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &wireLayout_);
+    hr = device_->CreateInputLayout(layout, 2, vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &wireLayout_);
     vsBlob->Release();
+    HR_CHECK(hr);
 
     ID3DBlob* psBlob = CompileShader(g_wireframePS, "main", "ps_4_0");
     if (!psBlob) return false;
-    device_->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &wirePS_);
+    hr = device_->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &wirePS_);
     psBlob->Release();
+    HR_CHECK(hr);
 
     // Fullscreen fade shaders
     vsBlob = CompileShader(g_fullscreenVS, "main", "vs_4_0");
     if (!vsBlob) return false;
-    device_->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), nullptr, &fadeVS_);
+    hr = device_->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), nullptr, &fadeVS_);
     vsBlob->Release();
+    HR_CHECK(hr);
 
     psBlob = CompileShader(g_fadePS, "main", "ps_4_0");
     if (!psBlob) return false;
-    device_->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &fadePS_);
+    hr = device_->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &fadePS_);
     psBlob->Release();
+    HR_CHECK(hr);
 
     return true;
 }

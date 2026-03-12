@@ -15,8 +15,12 @@ static const float PI = 3.14159265358979323846f;
 // ============================================================
 
 // Triangle wave: sharper ridges than sine, continuous
+// Clamp sinf result to prevent asinf domain errors from float imprecision
 static float triWave(float x) {
-    return asinf(sinf(x)) * (2.0f / PI);
+    float s = sinf(x);
+    if (s > 1.0f) s = 1.0f;
+    if (s < -1.0f) s = -1.0f;
+    return asinf(s) * (2.0f / PI);
 }
 
 // Square wave: flat plateaus, hard transitions
@@ -939,6 +943,7 @@ void Visualization::ComputeCamera(float time, float aspectRatio, float* outMatri
     float fwdY = 0.0f - eyeY;
     float fwdZ = lookZ - eyeZ;
     float fwdLen = sqrtf(fwdX * fwdX + fwdY * fwdY + fwdZ * fwdZ);
+    if (fwdLen < 0.0001f) fwdLen = 0.0001f;
     fwdX /= fwdLen; fwdY /= fwdLen; fwdZ /= fwdLen;
 
     float roll = sinf(time * 0.15f) * p.camTilt;

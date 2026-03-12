@@ -2,3 +2,4 @@ LIBRARY vis_ombro
 EXPORTS
     winampVisGetHeader
     cabrioVisGetHeader
+    winampUninstallPlugin

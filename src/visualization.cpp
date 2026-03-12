@@ -25,9 +25,10 @@ static float sqWave(float x) {
 }
 
 // ============================================================
-// 16 presets — ordered as a curated visual journey
+// 32 presets — ordered as a curated visual journey (~8 min full cycle)
 //
-// The slideshow cycles sequentially: calm → build → peak → wind down
+// The slideshow cycles sequentially: calm → explore → build → organic
+// → intense → exotic/radial → digital → wind down → loop
 // Each preset morphs smoothly into the next via parameter interpolation.
 //
 // Fields per preset (in order):
@@ -50,6 +51,8 @@ static float sqWave(float x) {
 // ============================================================
 
 static const Preset g_presets[] = {
+
+    // ── ACT I: CALM AWAKENING ──────────────────────────────────
 
     // 0: Spectrum Ridge — classic WhiteCap: spectrum IS the landscape, gentle intro
     {"Spectrum Ridge",
@@ -87,7 +90,45 @@ static const Preset g_presets[] = {
      3.5f, 1.8f, 0.15f,  0.8f, 0.08f, 0.15f,
      0.055f},
 
-    // 2: Nebula — deep, slow, atmospheric, purple-pink, long trails
+    // 2: Mountain Range — majestic triangle wave peaks, earthy tones, high overview
+    {"Mountain Range",
+     1.5f, 1.2f,  0.2f, 0.15f,  0.1f,
+     0.4f, 0.0f,                              // strong triangle = sharp mountain ridges
+     2.0f, 0.5f,  0.1f,
+     0.0f, 0.0f,  0.0f, 0.0f,
+     0.8f, 1.5f,
+     0.1f,
+     0.15f,                                   // subtle Wyvill = foothills
+     0.04f, 0.03f,  2.0f, 2.0f,  0.15f,
+     0.0f, 0.0f, 0.0f,
+     0.0f,
+     1.5f, 0.2f, 0.5f,
+     8.0f,
+     0.1f, 0.18f, 0.01f,  0.6f, 0.85f, 1.2f, // earth brown-green
+     4.5f, 3.0f, 0.06f,  0.7f, 0.03f, 0.05f, // high, slow orbit = vista
+     0.05f},
+
+    // 3: Forest Canopy — green, organic Wyvill tree shapes, walking-through feel
+    {"Forest Canopy",
+     1.0f, 0.8f,  0.15f, 0.1f,  0.15f,
+     0.05f, 0.0f,
+     1.5f, 0.4f,  0.1f,
+     0.0f, 0.0f,  0.0f, 0.0f,
+     0.5f, 1.0f,
+     0.1f,
+     0.5f,                                    // organic Wyvill = tree canopy shapes
+     0.12f, 0.1f,  1.5f, 1.8f,  0.2f,
+     0.3f, 0.2f, 0.03f,                      // gentle forward drift = walking
+     0.0f,
+     1.2f, 0.15f, 0.3f,
+     7.0f,
+     0.28f, 0.38f, 0.015f,  0.75f, 0.8f, 1.0f, // green range
+     3.0f, 1.2f, 0.08f,  0.8f, 0.03f, 0.15f, // low camera = forest floor
+     0.04f},
+
+    // ── ACT II: EXPLORATION ────────────────────────────────────
+
+    // 4: Nebula — deep, slow, atmospheric, purple-pink, long trails
     {"Nebula",
      1.0f, 0.8f,  0.2f, 0.15f,  0.35f,
      0.0f, 0.0f,
@@ -95,20 +136,76 @@ static const Preset g_presets[] = {
      1.0f, 1.5f,  0.4f, 0.15f,
      0.8f, 1.0f,
      0.2f,
-     0.3f,                                    // Wyvill blobs add organic depth
+     0.3f,
      0.15f, 0.12f,  1.5f, 2.0f,  0.2f,
-     1.0f, 0.3f, 0.04f,                      // gentle flow
+     1.0f, 0.3f, 0.04f,
      0.0f,
      1.5f, 0.2f, 0.35f,
      6.0f,
      0.78f, 0.92f, 0.015f,  0.75f, 0.85f, 1.0f,
      4.0f, 2.2f, 0.08f,  0.75f, 0.04f, 0.2f,
-     0.025f},                                 // very slow fade = long trails
+     0.025f},
 
-    // 3: Crystal Lattice — sharper geometry, green-white, picks up energy
+    // 5: Silk Curtain — high warp, low amplitude, flowing elegance, pink-white
+    {"Silk Curtain",
+     1.2f, 0.8f,  0.3f, 0.2f,  0.15f,
+     0.1f, 0.0f,
+     1.5f, 0.6f,  0.1f,
+     0.0f, 0.0f,  0.0f, 0.0f,
+     0.5f, 1.0f,
+     0.1f,
+     0.0f,
+     0.2f, 0.18f,  1.5f, 1.8f,  0.25f,
+     0.3f, 0.4f, 0.06f,
+     0.0f,
+     1.0f, 0.15f, 0.25f,
+     7.0f,
+     0.9f, 0.95f, 0.03f,  0.4f, 0.9f, 0.9f,
+     3.8f, 1.6f, 0.1f,  0.8f, 0.05f, 0.22f,
+     0.04f},
+
+    // 6: Coral Reef — organic Wyvill blobs, aqua-orange, warm and alive
+    {"Coral Reef",
+     2.0f, 1.8f,  0.35f, 0.3f,  0.15f,
+     0.1f, 0.0f,
+     2.5f, 0.8f,  0.15f,
+     0.0f, 0.0f,  0.0f, 0.0f,
+     0.8f, 1.2f,
+     0.15f,
+     0.6f,
+     0.1f, 0.08f,  2.0f, 2.5f,  0.25f,
+     0.8f, 0.3f, 0.04f,
+     0.0f,
+     2.0f, 0.3f, 0.4f,
+     8.0f,
+     0.48f, 0.08f, 0.025f,  0.85f, 0.9f, 1.3f,
+     3.3f, 1.8f, 0.15f,  0.8f, 0.08f, 0.12f,
+     0.055f},
+
+    // 7: Jellyfish — Wyvill blobs pulsing downward, aqua bioluminescent glow
+    {"Jellyfish",
+     1.5f, 1.2f,  0.25f, 0.2f,  0.15f,
+     0.0f, 0.0f,
+     2.0f, 0.6f,  0.15f,
+     0.0f, 0.0f,  0.0f, 0.0f,
+     0.6f, 1.0f,
+     0.1f,
+     0.7f,                                    // strong Wyvill = jellyfish bell shapes
+     0.15f, 0.12f,  1.5f, 2.0f,  0.25f,
+     -PI * 0.5f, 0.5f, 0.06f,                // downward flow = sinking jellyfish
+     0.0f,
+     1.5f, 0.2f, 0.35f,
+     8.0f,
+     0.5f, 0.58f, 0.02f,  0.7f, 0.85f, 1.3f, // aqua bioluminescent
+     3.5f, 1.5f, 0.1f,  0.8f, 0.05f, 0.18f,
+     0.035f},
+
+    // ── ACT III: BUILDING ENERGY ───────────────────────────────
+
+    // 8: Crystal Lattice — sharper geometry, green-white, picks up energy
     {"Crystal Lattice",
      3.5f, 3.5f,  0.4f, 0.4f,  0.15f,
-     0.2f, 0.0f,                              // subtle triangle wave ridges
+     0.2f, 0.0f,
      5.0f, 1.0f,  0.2f,
      3.0f, 2.0f,  0.8f, 0.2f,
      1.0f, 2.2f,
@@ -123,17 +220,17 @@ static const Preset g_presets[] = {
      3.2f, 2.5f, 0.18f,  0.7f, 0.06f, 0.08f,
      0.05f},
 
-    // 4: Waveform Canyon — strong waveform presence, teal-yellow
+    // 9: Waveform Canyon — strong waveform presence, teal-yellow
     {"Waveform Canyon",
      2.0f, 1.5f,  0.5f, 0.3f,  0.2f,
      0.0f, 0.0f,
      3.0f, 1.2f,  0.15f,
      0.0f, 0.0f,  0.0f, 0.0f,
      0.7f, 1.3f,
-     0.5f,                                    // strong waveform
+     0.5f,
      0.0f,
      0.08f, 0.06f,  2.0f, 2.5f,  0.35f,
-     0.5f, 0.5f, 0.03f,                      // gentle sideways flow
+     0.5f, 0.5f, 0.03f,
      0.0f,
      1.8f, 0.3f, 0.4f,
      9.0f,
@@ -141,71 +238,35 @@ static const Preset g_presets[] = {
      3.0f, 1.5f, 0.2f,  0.85f, 0.1f, 0.12f,
      0.06f},
 
-    // 5: Silk Curtain — high warp, low amplitude, flowing elegance, pink-white
-    {"Silk Curtain",
-     1.2f, 0.8f,  0.3f, 0.2f,  0.15f,
-     0.1f, 0.0f,
-     1.5f, 0.6f,  0.1f,
+    // 10: Arctic Ice — crystalline triangle ridges, cold blue-white, frozen
+    {"Arctic Ice",
+     4.0f, 3.5f,  0.2f, 0.15f,  0.1f,
+     0.3f, 0.05f,                             // sharp triangle = ice crystals
+     3.0f, 0.5f,  0.1f,
      0.0f, 0.0f,  0.0f, 0.0f,
-     0.5f, 1.0f,
-     0.1f,
+     0.8f, 2.0f,                              // sharp spectrum peaks
+     0.05f,
      0.0f,
-     0.2f, 0.18f,  1.5f, 1.8f,  0.25f,      // heavy warp = flowing fabric
-     0.3f, 0.4f, 0.06f,                      // gentle flow
+     0.03f, 0.02f,  3.5f, 4.0f,  0.15f,
+     0.0f, 0.0f, 0.0f,
      0.0f,
-     1.0f, 0.15f, 0.25f,
-     7.0f,
-     0.9f, 0.95f, 0.03f,  0.4f, 0.9f, 0.9f, // low sat = white-pink
-     3.8f, 1.6f, 0.1f,  0.8f, 0.05f, 0.22f,
-     0.04f},
-
-    // 6: Coral Reef — organic Wyvill blobs, aqua-orange, warm and alive
-    {"Coral Reef",
-     2.0f, 1.8f,  0.35f, 0.3f,  0.15f,
-     0.1f, 0.0f,
-     2.5f, 0.8f,  0.15f,
-     0.0f, 0.0f,  0.0f, 0.0f,
-     0.8f, 1.2f,
-     0.15f,
-     0.6f,                                    // strong Wyvill blobs
-     0.1f, 0.08f,  2.0f, 2.5f,  0.25f,
-     0.8f, 0.3f, 0.04f,
-     0.0f,
-     2.0f, 0.3f, 0.4f,
-     8.0f,
-     0.48f, 0.08f, 0.025f,  0.85f, 0.9f, 1.3f, // aqua → orange
-     3.3f, 1.8f, 0.15f,  0.8f, 0.08f, 0.12f,
-     0.055f},
-
-    // 7: Ember Flow — spiral-heavy, red-gold, warm currents
-    {"Ember Flow",
-     1.2f, 1.0f,  0.3f, 0.25f,  0.2f,
-     0.0f, 0.0f,
-     2.0f, 0.6f,  0.2f,
-     4.0f, 5.0f,  0.7f, 0.3f,               // prominent spirals
-     0.6f, 1.2f,
-     0.15f,
-     0.15f,
-     0.10f, 0.08f,  2.0f, 2.5f,  0.3f,
-     2.5f, 0.6f, 0.05f,                      // rotating flow
-     0.0f,
-     2.5f, 0.2f, 0.45f,
-     8.0f,
-     0.03f, 0.1f, 0.02f,  0.9f, 0.9f, 1.5f,
-     3.5f, 2.0f, 0.15f,  0.8f, 0.1f, 0.18f,
+     1.0f, 0.5f, 0.35f,
+     10.0f,
+     0.55f, 0.6f, 0.01f,  0.3f, 0.95f, 1.5f, // low sat = icy white-blue
+     3.5f, 2.5f, 0.12f,  0.75f, 0.04f, 0.08f,
      0.05f},
 
-    // 8: Tidal Wave — triangle wave ridges, blue-green, building intensity
+    // 11: Tidal Wave — triangle wave ridges, blue-green, building intensity
     {"Tidal Wave",
      2.5f, 2.0f,  0.6f, 0.4f,  0.1f,
-     0.35f, 0.0f,                             // strong triangle waves = sharp ridges
+     0.35f, 0.0f,
      3.5f, 1.5f,  0.25f,
      0.0f, 0.0f,  0.0f, 0.0f,
      1.0f, 1.5f,
      0.2f,
      0.0f,
      0.1f, 0.08f,  2.0f, 2.5f,  0.4f,
-     -0.3f, 0.8f, 0.06f,                     // flowing forward
+     -0.3f, 0.8f, 0.06f,
      0.0f,
      2.0f, 0.4f, 0.45f,
      9.0f,
@@ -213,10 +274,86 @@ static const Preset g_presets[] = {
      3.2f, 1.6f, 0.2f,  0.85f, 0.1f, 0.1f,
      0.05f},
 
-    // 9: Pulse Engine — heavy bass, aggressive, red-orange, peak energy
+    // 12: Quicksilver — smooth, metallic, very low saturation, liquid mercury
+    {"Quicksilver",
+     2.0f, 1.5f,  0.4f, 0.3f,  0.25f,
+     0.0f, 0.0f,
+     2.5f, 1.0f,  0.2f,
+     1.0f, 2.0f,  0.5f, 0.1f,
+     0.7f, 1.2f,
+     0.15f,
+     0.2f,                                    // subtle organic bumps
+     0.15f, 0.12f,  2.0f, 2.5f,  0.35f,
+     0.5f, 0.5f, 0.04f,
+     0.0f,
+     1.8f, 0.3f, 0.4f,
+     9.0f,
+     0.6f, 0.65f, 0.02f,  0.15f, 0.95f, 1.3f, // very low sat = silver
+     3.2f, 1.8f, 0.18f,  0.82f, 0.08f, 0.1f,
+     0.05f},
+
+    // ── ACT IV: HEAT ───────────────────────────────────────────
+
+    // 13: Ember Flow — spiral-heavy, red-gold, warm currents
+    {"Ember Flow",
+     1.2f, 1.0f,  0.3f, 0.25f,  0.2f,
+     0.0f, 0.0f,
+     2.0f, 0.6f,  0.2f,
+     4.0f, 5.0f,  0.7f, 0.3f,
+     0.6f, 1.2f,
+     0.15f,
+     0.15f,
+     0.10f, 0.08f,  2.0f, 2.5f,  0.3f,
+     2.5f, 0.6f, 0.05f,
+     0.0f,
+     2.5f, 0.2f, 0.45f,
+     8.0f,
+     0.03f, 0.1f, 0.02f,  0.9f, 0.9f, 1.5f,
+     3.5f, 2.0f, 0.15f,  0.8f, 0.1f, 0.18f,
+     0.05f},
+
+    // 14: Solar Flare — extreme spirals outward, orange-white, coronal ejection
+    {"Solar Flare",
+     3.0f, 2.5f,  0.8f, 0.6f,  0.15f,
+     0.1f, 0.0f,
+     5.0f, 2.5f,  0.2f,
+     5.0f, 6.0f,  1.5f, 0.3f,               // intense spirals = solar jets
+     1.2f, 1.5f,
+     0.15f,
+     0.2f,
+     0.1f, 0.08f,  2.5f, 3.0f,  0.5f,
+     0.0f, 0.0f, 0.0f,
+     0.3f,                                    // slight radial = solar disc
+     2.5f, 0.5f, 0.5f,
+     8.0f,
+     0.05f, 0.15f, 0.03f,  0.95f, 1.0f, 2.0f, // orange-white, max glow
+     3.0f, 1.5f, 0.25f,  0.9f, 0.15f, 0.1f,
+     0.04f},
+
+    // 15: Earthquake — seismic square wave plateaus, extreme shake, waveform seismograph
+    {"Earthquake",
+     2.5f, 2.0f,  0.8f, 0.6f,  0.1f,
+     0.15f, 0.35f,                            // strong square wave = tectonic plates
+     3.0f, 1.5f,  0.2f,
+     0.0f, 0.0f,  0.0f, 0.0f,
+     1.0f, 1.8f,
+     0.3f,                                    // strong waveform = seismograph line
+     0.0f,
+     0.08f, 0.06f,  2.0f, 2.5f,  0.4f,
+     0.0f, 0.0f, 0.0f,
+     0.0f,
+     3.0f, 0.3f, 0.5f,                       // extreme bass reactivity
+     8.0f,
+     0.05f, 0.1f, 0.01f,  0.7f, 0.85f, 1.6f, // brown-red earthy
+     2.5f, 1.0f, 0.2f,  0.9f, 0.25f, 0.05f,  // close, low camera, EXTREME shake
+     0.045f},
+
+    // ── ACT V: PEAK INTENSITY ──────────────────────────────────
+
+    // 16: Pulse Engine — heavy bass, aggressive, red-orange, peak energy
     {"Pulse Engine",
      3.0f, 2.5f,  1.0f, 0.8f,  0.2f,
-     0.1f, 0.1f,                              // mixed wave types
+     0.1f, 0.1f,
      4.0f, 2.0f,  0.25f,
      2.0f, 3.0f,  1.5f, 0.15f,
      0.9f, 1.5f,
@@ -231,7 +368,7 @@ static const Preset g_presets[] = {
      3.0f, 1.8f, 0.28f,  0.9f, 0.15f, 0.1f,
      0.04f},
 
-    // 10: Storm Front — electric blue-white, maximum intensity
+    // 17: Storm Front — electric blue-white, maximum intensity
     {"Storm Front",
      4.5f, 4.0f,  1.2f, 1.0f,  0.15f,
      0.1f, 0.05f,
@@ -249,7 +386,27 @@ static const Preset g_presets[] = {
      2.8f, 1.6f, 0.35f,  0.95f, 0.18f, 0.05f,
      0.04f},
 
-    // 11: Thunderdome — radial topology, aggressive, cyan-white, dramatic
+    // 18: Cathedral — massive reverberant space, purple-gold, majestic
+    {"Cathedral",
+     1.5f, 1.2f,  0.25f, 0.2f,  0.3f,
+     0.15f, 0.0f,
+     2.0f, 0.8f,  0.25f,
+     2.0f, 3.0f,  0.6f, 0.2f,
+     0.9f, 1.2f,
+     0.15f,
+     0.3f,                                    // organic pillars
+     0.1f, 0.08f,  2.0f, 2.5f,  0.2f,
+     0.0f, 0.0f, 0.0f,
+     0.0f,
+     2.0f, 0.2f, 0.5f,
+     7.0f,
+     0.75f, 0.12f, 0.02f,  0.8f, 0.9f, 1.4f, // purple → gold
+     4.0f, 2.5f, 0.1f,  0.7f, 0.06f, 0.15f,
+     0.03f},                                  // long trails = reverb
+
+    // ── ACT VI: EXOTIC RADIAL ──────────────────────────────────
+
+    // 19: Thunderdome — radial topology, aggressive, cyan-white, dramatic
     {"Thunderdome",
      3.0f, 3.0f,  0.8f, 0.6f,  0.2f,
      0.15f, 0.0f,
@@ -260,14 +417,50 @@ static const Preset g_presets[] = {
      0.0f,
      0.08f, 0.06f,  2.5f, 3.0f,  0.4f,
      0.0f, 0.0f, 0.0f,
-     0.7f,                                    // strong radial topology
+     0.7f,
      2.2f, 0.5f, 0.45f,
      10.0f,
      0.52f, 0.55f, 0.04f,  0.5f, 1.0f, 1.8f,
      3.5f, 1.5f, 0.25f,  0.9f, 0.14f, 0.08f,
      0.045f},
 
-    // 12: Hyperdrive — radial, outward flow, high speed, rainbow tunnel
+    // 20: Neutron Star — radial, fast spin, white-blue, intense stellar
+    {"Neutron Star",
+     4.0f, 3.5f,  1.0f, 0.8f,  0.15f,
+     0.1f, 0.0f,
+     6.0f, 3.0f,  0.15f,
+     3.0f, 5.0f,  2.0f, 0.15f,               // fast spirals = magnetic field lines
+     1.3f, 2.0f,
+     0.1f,
+     0.0f,
+     0.06f, 0.05f,  3.0f, 3.5f,  0.6f,
+     0.0f, 1.5f, 0.06f,                      // outward flow
+     0.9f,                                    // strong radial = spinning star
+     2.0f, 0.6f, 0.4f,
+     12.0f,
+     0.55f, 0.58f, 0.03f,  0.4f, 1.0f, 2.2f, // white-blue, extreme glow
+     2.5f, 0.8f, 0.4f,  1.0f, 0.15f, 0.05f,
+     0.04f},
+
+    // 21: Wormhole — full radial tunnel, tight spirals pulling inward, deep purple
+    {"Wormhole",
+     2.0f, 1.5f,  0.5f, 0.4f,  0.15f,
+     0.0f, 0.0f,
+     4.0f, 2.0f,  0.15f,
+     3.0f, 8.0f,  1.0f, 0.2f,               // very tight spirals = wormhole rotation
+     0.8f, 1.3f,
+     0.1f,
+     0.0f,
+     0.08f, 0.06f,  2.5f, 3.0f,  0.4f,
+     PI, 1.2f, 0.08f,                        // inward pull = entering wormhole
+     1.0f,                                    // full radial = tunnel
+     2.0f, 0.4f, 0.4f,
+     14.0f,
+     0.7f, 0.8f, 0.03f,  0.8f, 0.85f, 1.6f, // deep purple
+     2.0f, 0.3f, 0.2f,  1.1f, 0.1f, 0.1f,   // close, inside the tunnel, wide FOV
+     0.035f},
+
+    // 22: Hyperdrive — radial, outward flow, high speed, rainbow tunnel
     {"Hyperdrive",
      2.5f, 2.0f,  0.6f, 0.5f,  0.15f,
      0.0f, 0.0f,
@@ -277,33 +470,145 @@ static const Preset g_presets[] = {
      0.1f,
      0.0f,
      0.06f, 0.05f,  2.0f, 2.5f,  0.3f,
-     0.0f, 1.5f, 0.08f,                      // strong outward flow
-     0.85f,                                   // strong radial
+     0.0f, 1.5f, 0.08f,
+     0.85f,
      1.8f, 0.4f, 0.35f,
      12.0f,
-     0.0f, 1.0f, 0.08f,  0.9f, 0.9f, 1.5f,  // full rainbow
-     2.8f, 0.5f, 0.3f,  1.0f, 0.12f, 0.05f, // close, wide FOV
+     0.0f, 1.0f, 0.08f,  0.9f, 0.9f, 1.5f,
+     2.8f, 0.5f, 0.3f,  1.0f, 0.12f, 0.05f,
      0.035f},
 
-    // 13: Binary Rain — square wave plateaus, green-on-black, digital/Matrix
+    // 23: Pulsing Orb — radial sphere that pulses to the beat, morphs shape
+    {"Pulsing Orb",
+     2.5f, 2.0f,  0.5f, 0.4f,  0.2f,
+     0.1f, 0.0f,
+     3.0f, 1.5f,  0.2f,
+     1.0f, 2.0f,  0.8f, 0.1f,
+     1.0f, 1.5f,
+     0.15f,
+     0.3f,                                    // Wyvill = organic sphere deformation
+     0.1f, 0.08f,  2.0f, 2.5f,  0.3f,
+     0.0f, 0.0f, 0.0f,
+     0.85f,                                   // mostly spherical
+     3.0f, 0.3f, 0.45f,                      // very strong bass = pulsing sphere
+     10.0f,
+     0.5f, 0.55f, 0.04f,  0.6f, 0.95f, 1.8f, // cyan-white, strong glow
+     3.0f, 1.5f, 0.15f,  0.85f, 0.12f, 0.08f,
+     0.045f},
+
+    // 24: Volcanic — radial with outward flow, red-orange lava eruption from core
+    {"Volcanic",
+     2.0f, 1.5f,  0.6f, 0.5f,  0.2f,
+     0.1f, 0.0f,
+     3.0f, 1.5f,  0.2f,
+     2.0f, 3.0f,  1.0f, 0.2f,
+     1.0f, 1.5f,
+     0.15f,
+     0.4f,                                    // Wyvill = lava blobs
+     0.1f, 0.08f,  2.0f, 2.5f,  0.35f,
+     0.0f, 1.0f, 0.07f,                      // outward flow = eruption
+     0.6f,                                    // partial radial = volcanic shape
+     2.5f, 0.3f, 0.45f,
+     10.0f,
+     0.0f, 0.08f, 0.02f,  0.95f, 0.9f, 1.8f, // red → orange, strong glow
+     3.0f, 1.8f, 0.18f,  0.85f, 0.12f, 0.1f,
+     0.04f},
+
+    // 25: Event Horizon — radial, slow spiral inward, dark and fading, gravitational
+    {"Event Horizon",
+     1.5f, 1.2f,  0.3f, 0.2f,  0.2f,
+     0.0f, 0.0f,
+     2.0f, 0.8f,  0.2f,
+     2.0f, 4.0f,  0.5f, 0.15f,               // spirals = accretion disc
+     0.7f, 1.0f,
+     0.1f,
+     0.1f,
+     0.08f, 0.06f,  2.0f, 2.5f,  0.2f,
+     PI, 0.5f, 0.05f,                        // slow inward pull
+     0.8f,
+     1.5f, 0.2f, 0.3f,
+     10.0f,
+     0.65f, 0.7f, 0.01f,  0.6f, 0.7f, 1.0f, // dim purple, fading
+     3.5f, 1.5f, 0.1f,  0.8f, 0.05f, 0.15f,
+     0.025f},                                 // long ghostly trails
+
+    // ── ACT VII: DIGITAL ───────────────────────────────────────
+
+    // 26: Neon Grid — retro square waves, high saturation, cyan-magenta, synthwave
+    {"Neon Grid",
+     3.0f, 3.0f,  0.3f, 0.3f,  0.05f,
+     0.0f, 0.3f,                              // strong square = clean grid plateaus
+     2.0f, 0.5f,  0.05f,
+     0.0f, 0.0f,  0.0f, 0.0f,
+     0.8f, 2.0f,
+     0.1f,
+     0.0f,
+     0.02f, 0.02f,  3.0f, 3.0f,  0.2f,      // minimal warp = clean grid
+     0.0f, 0.0f, 0.0f,
+     0.0f,
+     1.5f, 0.5f, 0.35f,
+     12.0f,
+     0.5f, 0.85f, 0.04f,  1.0f, 0.9f, 1.8f, // cyan → magenta, max sat
+     3.0f, 2.0f, 0.15f,  0.8f, 0.06f, 0.05f,
+     0.05f},
+
+    // 27: Binary Rain — square wave plateaus, green-on-black, digital/Matrix
     {"Binary Rain",
      3.0f, 2.5f,  0.5f, 0.4f,  0.05f,
-     0.0f, 0.3f,                              // strong square wave = digital plateaus
+     0.0f, 0.3f,
      2.0f, 0.8f,  0.1f,
      0.0f, 0.0f,  0.0f, 0.0f,
-     1.0f, 2.5f,                              // very sharp spectrum peaks
+     1.0f, 2.5f,
      0.1f,
      0.0f,
      0.03f, 0.02f,  3.0f, 3.5f,  0.3f,
-     -PI * 0.5f, 1.0f, 0.05f,                // downward flow
+     -PI * 0.5f, 1.0f, 0.05f,
      0.0f,
      1.5f, 0.6f, 0.35f,
      10.0f,
-     0.33f, 0.38f, 0.01f,  0.9f, 0.85f, 1.6f, // green
+     0.33f, 0.38f, 0.01f,  0.9f, 0.85f, 1.6f,
      3.0f, 2.0f, 0.15f,  0.8f, 0.06f, 0.05f,
      0.04f},
 
-    // 14: Lava Lamp — slow Wyvill blobs, warm colors, organic and relaxing
+    // ── ACT VIII: WIND DOWN ────────────────────────────────────
+
+    // 28: Cosmic Web — faint filaments, high treble detail, vast and quiet
+    {"Cosmic Web",
+     2.0f, 1.5f,  0.15f, 0.1f,  0.1f,
+     0.0f, 0.0f,
+     1.5f, 0.5f,  0.1f,
+     1.0f, 2.0f,  0.3f, 0.1f,
+     0.5f, 0.8f,
+     0.05f,
+     0.1f,
+     0.1f, 0.08f,  2.0f, 2.5f,  0.2f,
+     0.2f, 0.15f, 0.02f,                     // barely drifting
+     0.0f,
+     0.8f, 0.8f, 0.2f,                       // high treble detail, low amp = filaments
+     6.0f,
+     0.7f, 0.8f, 0.015f,  0.5f, 0.6f, 0.8f, // faint purple
+     5.0f, 3.0f, 0.06f,  0.65f, 0.02f, 0.2f, // far away, vast
+     0.03f},
+
+    // 29: Firefly Marsh — dark, sparse Wyvill glows, yellow-green bioluminescence
+    {"Firefly Marsh",
+     1.0f, 0.8f,  0.1f, 0.08f,  0.05f,
+     0.0f, 0.0f,
+     1.0f, 0.3f,  0.05f,
+     0.0f, 0.0f,  0.0f, 0.0f,
+     0.3f, 0.8f,
+     0.05f,
+     0.6f,                                    // strong Wyvill = firefly glows
+     0.1f, 0.08f,  1.5f, 2.0f,  0.15f,
+     0.5f, 0.15f, 0.02f,                     // barely drifting
+     0.0f,
+     1.0f, 0.1f, 0.2f,
+     6.0f,
+     0.22f, 0.3f, 0.01f,  0.8f, 0.5f, 1.5f, // dim but glowy when active
+     3.5f, 1.2f, 0.06f,  0.8f, 0.02f, 0.18f,
+     0.03f},
+
+    // 30: Lava Lamp — slow Wyvill blobs, warm colors, organic and relaxing
     {"Lava Lamp",
      0.8f, 0.6f,  0.15f, 0.1f,  0.2f,
      0.0f, 0.0f,
@@ -311,17 +616,17 @@ static const Preset g_presets[] = {
      0.0f, 0.0f,  0.0f, 0.0f,
      0.5f, 0.8f,
      0.1f,
-     0.8f,                                    // very strong Wyvill blobs
+     0.8f,
      0.18f, 0.15f,  1.2f, 1.5f,  0.15f,
-     0.5f, 0.2f, 0.05f,                      // gentle upward flow
+     0.5f, 0.2f, 0.05f,
      0.0f,
      2.0f, 0.1f, 0.3f,
      7.0f,
-     0.05f, 0.15f, 0.02f,  0.9f, 0.85f, 1.0f, // red → orange-yellow
+     0.05f, 0.15f, 0.02f,  0.9f, 0.85f, 1.0f,
      3.8f, 2.0f, 0.08f,  0.75f, 0.04f, 0.2f,
-     0.03f},                                  // slow fade = blobby trails
+     0.03f},
 
-    // 15: Deep Space — slow undulation, deep purple, long trails, fadeout
+    // 31: Deep Space — slow undulation, deep purple, long trails, fadeout → loops to 0
     {"Deep Space",
      1.0f, 0.8f,  0.2f, 0.15f,  0.3f,
      0.0f, 0.0f,
@@ -331,7 +636,7 @@ static const Preset g_presets[] = {
      0.15f,
      0.2f,
      0.12f, 0.10f,  1.5f, 2.0f,  0.18f,
-     0.8f, 0.15f, 0.03f,                     // slow drifting flow
+     0.8f, 0.15f, 0.03f,
      0.0f,
      1.5f, 0.15f, 0.3f,
      8.0f,

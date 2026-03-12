@@ -57,7 +57,7 @@ ombro/
 - **Audio analysis**: per-bin fast-attack/slow-decay smoothing, bass/mid/treble band extraction, beat detection, spectral flux
 - **Edge falloff**: per-vertex alpha fades at grid boundaries (adapts to radial topology — Y-edge wraps in radial mode)
 - **Two-tone color**: frequency-mapped hue gradient (bass=one color, treble=another) with per-vertex brightness from spectrum energy
-- **16 presets** ordered as a curated visual journey (calm → build → peak → wind down), sequential cycling like WhiteCap's slideshow with smooth morphing transitions (~2.5s)
+- **32 presets** ordered as a curated 8-act visual journey (calm awakening → exploration → building energy → heat → peak intensity → exotic radial → digital → wind down), sequential cycling like WhiteCap's slideshow with smooth morphing transitions (~2.5s)
 - Auto-cycles presets every 15 seconds in sequential order
 - Camera orbits with beat-reactive shake, FOV per preset, gentle roll, and look-at drift
 

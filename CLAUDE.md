@@ -45,17 +45,21 @@ ombro/
 - **Spectrum-mapped displacement** (WhiteCap signature): each grid row corresponds to a frequency bin, so spectrum energy directly drives Z height — you can *see* the music as terrain
 - **Waveform overlay**: raw audio waveform shape embedded into the surface along the X axis
 - **Grid XY warping**: sinusoidal distortion of grid positions creates organic, flowing motion instead of rigid lines
-- Surface `z` also computed from layered math functions:
+- **Flow field displacement**: directional streaming motion with configurable angle and speed — vertices displace perpendicular to flow direction for a streaming fabric effect
+- **Radial topology blending**: `radialMix` smoothly morphs the flat grid into a circular/cylindrical layout (col→radius, row→angle), enabling tunnel and torus-like shapes
+- Surface `z` computed from layered math functions (WhiteCap vocabulary):
   - **Crossing sine waves** — `sin(x·freq)·cos(y·freq+t)`
+  - **Triangle wave ridges** — `triWave()` for sharper peaks than sine
+  - **Square wave plateaus** — `sqWave()` for flat-top mesa/digital shapes
   - **Concentric ripples** — `sin(r·freq - t)`
   - **Spiral arms** — `sin(θ·arms + r·tightness - t)`
+  - **Wyvill organic blobs** — 4 drifting metaball-like peaks using `Wyvill(r)` = `(1-r²)³` falloff, height driven by bass frequency bins
 - **Audio analysis**: per-bin fast-attack/slow-decay smoothing, bass/mid/treble band extraction, beat detection, spectral flux
-- **Edge falloff**: per-vertex alpha fades to transparent at grid boundaries (floating-in-space look)
+- **Edge falloff**: per-vertex alpha fades at grid boundaries (adapts to radial topology — Y-edge wraps in radial mode)
 - **Two-tone color**: frequency-mapped hue gradient (bass=one color, treble=another) with per-vertex brightness from spectrum energy
-- **8 presets** with smooth morphing transitions (~2.5s, WhiteCap-style easing)
-- Auto-cycles presets every 15 seconds
+- **16 presets** ordered as a curated visual journey (calm → build → peak → wind down), sequential cycling like WhiteCap's slideshow with smooth morphing transitions (~2.5s)
+- Auto-cycles presets every 15 seconds in sequential order
 - Camera orbits with beat-reactive shake, FOV per preset, gentle roll, and look-at drift
-- `Wyvill(r)` smooth falloff function for organic shapes
 
 ### Shaders (`shaders.h`)
 - `g_wireframeVS` / `g_wireframePS` — transform vertices by view-proj matrix, pass-through per-vertex color

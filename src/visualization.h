@@ -19,10 +19,10 @@ struct AudioData {
     float treble;
     float totalEnergy;
     float beatIntensity;
-    float spectralFlux;             // rate of spectral change (onset detection)
+    float spectralFlux;
 
-    float spectrum[256];            // smoothed per-bin (fast attack, slow decay)
-    float waveform[576];            // normalized mono waveform (-1..1)
+    float spectrum[256];
+    float waveform[576];
 };
 
 struct Preset {
@@ -33,48 +33,64 @@ struct Preset {
     float waveSpeedX, waveSpeedY;
     float waveAmp;
 
+    // Surface: triangle wave ridges (sharper than sine)
+    float triWaveAmp;
+
+    // Surface: square wave plateaus (flat-top mesas)
+    float sqWaveAmp;
+
     // Surface: concentric ripple
     float rippleFreq, rippleSpeed, rippleAmp;
 
     // Surface: spiral arms
     float spiralArms, spiralTightness, spiralSpeed, spiralAmp;
 
-    // Spectrum-driven displacement (the key WhiteCap feature)
-    // Maps frequency bins across the grid Y-axis so the music is visible as terrain
-    float spectrumScale;            // how much spectrum drives Z height
-    float spectrumExponent;         // power curve for emphasis (>1 = sharper peaks)
+    // Spectrum-driven displacement (WhiteCap signature)
+    float spectrumScale;
+    float spectrumExponent;
 
-    // Waveform overlay — embeds the raw audio waveform shape into the surface
+    // Waveform overlay
     float waveformScale;
+
+    // Wyvill organic blob peaks — smooth metaball-like bumps driven by bass
+    float wyvillScale;
 
     // Grid XY warping — organic flowing distortion
     float warpAmountX, warpAmountY;
     float warpFreqX, warpFreqY;
     float warpSpeed;
 
+    // Flow field — directional streaming displacement
+    float flowAngle;            // flow direction in radians
+    float flowSpeed;            // flow animation speed
+    float flowScale;            // displacement amplitude
+
+    // Surface topology — 0 = flat grid, 1 = radial/circular
+    float radialMix;
+
     // Audio reactivity
     float bassScale;
     float trebleDetail;
     float amplitude;
 
-    // Edge falloff — cells from edge to full opacity (floating-in-space look)
+    // Edge falloff
     float edgeFalloff;
 
-    // Color: two-tone system (bass hue → treble hue gradient)
-    float hueLow;                   // hue at low frequencies (grid row 0)
-    float hueHigh;                  // hue at high frequencies (grid row N)
-    float hueSpeed;                 // hue rotation speed over time
+    // Color: two-tone (bass hue → treble hue)
+    float hueLow;
+    float hueHigh;
+    float hueSpeed;
     float saturation;
     float brightness;
-    float glowIntensity;            // multiplier for additive brightness
+    float glowIntensity;
 
     // Camera
     float camDist;
     float camHeight;
     float camSpeed;
-    float camFOV;                   // field of view in radians
-    float camShake;                 // beat-reactive shake amplitude
-    float camTilt;                  // slow camera roll
+    float camFOV;
+    float camShake;
+    float camTilt;
 
     // Afterglow
     float fadeAmount;
@@ -109,7 +125,7 @@ private:
     Preset GetActivePreset() const;
 
     static void HSVtoRGB(float h, float s, float v, float& r, float& g, float& b);
-    static float Wyvill(float r); // Smooth organic falloff: (1 - r^2)^3
+    static float Wyvill(float r);
 
     std::vector<Vertex>   vertices_;
     std::vector<uint32_t> indices_;
